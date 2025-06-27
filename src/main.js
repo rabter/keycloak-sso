@@ -38,8 +38,8 @@ keycloak.init({
 
    const app = createApp(App);
 
-   // 토큰을 글로벌 등록 (optional)
-   app.config.globalProperties.$keycloak = keycloak;
+   // keycloak 인스턴스 주입
+   app.provide('keycloak', keycloak)
 
    // Router 사용
    app.use(router);
@@ -60,7 +60,9 @@ keycloak.init({
             }
         } catch (error) {
             console.error('토큰 갱신 실패, 재로그인 유도:', error);
-            keycloakInstance.login();
+            keycloakInstance.login({
+              redirectUri: window.location.origin
+            });
         }
     }, 10 * 1000); // 10초 간격으로 검사
  }
@@ -72,7 +74,9 @@ keycloak.init({
         console.log('세션 유효함');
       } catch (e) {
         console.warn('세션 만료 또는 무효함 -> 재로그인 시도');
-        keycloakInstance.login(); // 또는 keycloakInstance.logout()
+        keycloakInstance.login({
+          redirectUri: window.location.origin
+        }); // 또는 keycloakInstance.logout()
       }
     }, 60 * 1000);
  };
